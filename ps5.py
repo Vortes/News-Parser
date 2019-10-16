@@ -77,10 +77,6 @@ class NewsStory():
 
 class Trigger(object):
     def evaluate(self, story):
-        """
-        Returns True if an alert should be generated
-        for the given news item, or False otherwise.
-        """
         raise NotImplementedError
     
 
@@ -94,24 +90,24 @@ class WordTrigger(Trigger):
     
     def is_word_in(self, text):
         split = re.split('\W+', text.lower())
-        if self.word in split:
+        if self.word.lower() in split:
             return True
         return False
 
 
-# ! PROBLEM 3 WIP (Concept works, not sure how to get test to run)
+# * EVERYTHING PASSES! FINALLY
 class TitleTrigger(WordTrigger):
     def evaluate(self, story):
         return self.is_word_in(story.get_title())
-    
+                                    
 
-# ! PROBLEM 4 WIP (Concept works)
+# * EVERYTHING PASSES! FINALLY 
 class PublishedTrigger(WordTrigger):
     def evaluate(self, story):
         return self.is_word_in(story.get_published())
 
 
-# ! PROBLEM 5 WIP (Concept works)
+# * EVERYTHING PASSES! FINALLY
 class SummaryTrigger(WordTrigger): 
     def evaluate(self, story):
         return self.is_word_in(story.get_summary())
@@ -164,88 +160,87 @@ class PhraseTrigger(Trigger):
 # Filtering
 # ======================
 
-# def filter_stories(stories, triggerlist):
-#     """
-#     Takes in a list of NewsStory-s.
-#     Returns only those stories for whom
-#     a trigger in triggerlist fires.
-#     """
-#     # TODO: Problem 10
-#     # This is a placeholder (we're just returning all the stories, with no filtering) 
-#     # Feel free to change this line!
-#     return stories
+def filter_stories(stories, triggerlist):
+    filtered = []
+    for story in stories:
+        for trigger in triggerlist:
+            if trigger.evaluate(story):
+                filtered.append(story)
+                break
 
-# #======================
-# # Part 4
-# # User-Specified Triggers
-# #======================
+    return filtered
 
-# def readTriggerConfig(filename):
-#     """
-#     Returns a list of trigger objects
-#     that correspond to the rules set
-#     in the file filename
-#     """
-#     # Here's some code that we give you
-#     # to read in the file and eliminate
-#     # blank lines and comments
-#     triggerfile = open(filename, "r")
-#     all = [ line.rstrip() for line in triggerfile.readlines() ]
-#     lines = []
-#     for line in all:
-#         if len(line) == 0 or line[0] == '#':
-#             continue
-#         lines.append(line)
+#======================
+# Part 4
+# User-Specified Triggers
+#======================
 
-#     # TODO: Problem 11
-#     # 'lines' has a list of lines you need to parse
-#     # Build a set of triggers from it and
-#     # return the appropriate ones
+def readTriggerConfig(filename):
+    """
+    Returns a list of trigger objects
+    that correspond to the rules set
+    in the file filename
+    """
+    # Here's some code that we give you
+    # to read in the file and eliminate
+    # blank lines and comments
+    triggerfile = open(filename, "r")
+    all = [ line.rstrip() for line in triggerfile.readlines() ]
+    lines = []
+    for line in all:
+        if len(line) == 0 or line[0] == '#':
+            continue
+        lines.append(line)
+
+    # TODO: Problem 11
+    # 'lines' has a list of lines you need to parse
+    # Build a set of triggers from it and
+    # return the appropriate ones
     
-# import _thread
+import _thread
 
-# def main_thread(p):
-#     # A sample trigger list - you'll replace
-#     # this with something more configurable in Problem 11
-#     t1 = SummaryTrigger("Australia")
-#     t2 = TitleTrigger("Google")
-#     t3 = PhraseTrigger("White House")
-#     t4 = OrTrigger(t2, t3)
-#     triggerlist = [t1, t4]
+def main_thread(p):
+    # A sample trigger list - you'll replace
+    # this with something more configurable in Problem 11
+    t1 = SummaryTrigger("Australia")
+    t2 = TitleTrigger("Google")
+    t3 = PhraseTrigger("White House")
+    t4 = OrTrigger(t2, t3)
+    triggerlist = [t1, t4]
     
-#     # TODO: Problem 11
-#     # After implementing readTriggerConfig, uncomment this line 
-#     #triggerlist = readTriggerConfig("triggers.txt")
+    # TODO: Problem 11
+    # After implementing readTriggerConfig, uncomment this line 
+    #triggerlist = readTriggerConfig("triggers.txt")
 
-#     guidShown = []
+    guidShown = []
     
-#     while True:
-#         print("Polling...")
+    while True:
+        print("Polling...")
 
-#         # Get stories from Google's Top Stories RSS news feed
-#         stories = process("http://news.google.com/news?output=rss")
-#         # Get stories from Yahoo's Top Stories RSS news feed
-#         stories.extend(process("http://rss.news.yahoo.com/rss/topstories"))
+        # Get stories from Google's Top Stories RSS news feed
+        stories = process("http://news.google.com/news?output=rss")
+        # Get stories from Yahoo's Top Stories RSS news feed
+        stories.extend(process("http://rss.news.yahoo.com/rss/topstories"))
 
-#         # Only select stories we're interested in
-#         stories = filter_stories(stories, triggerlist)
+        # Only select stories we're interested in
+        stories = filter_stories(stories, triggerlist)
     
-#         # Don't print a story if we have already printed it before
-#         newstories = []
-#         for story in stories:
-#             if story.get_guid() not in guidShown:
-#                 newstories.append(story)
+        # Don't print a story if we have already printed it before
+        newstories = []
+        for story in stories:
+            if story.get_guid() not in guidShown:
+                newstories.append(story)
         
-#         for story in newstories:
-#             guidShown.append(story.get_guid())
-#             p.newWindow(story)
+        for story in newstories:
+            guidShown.append(story.get_guid())
+            p.newWindow(story)
 
-#         print("Sleeping...")
-#         time.sleep(SLEEPTIME)
+        print("Sleeping...")
+        time.sleep(SLEEPTIME)
 
-# SLEEPTIME = 60 #seconds -- how often we poll
-# if __name__ == '__main__':
-#     p = Popup()
-#     _thread.start_new_thread(main_thread, (p,))
-#     p.start()
+SLEEPTIME = 60 #seconds -- how often we poll
+if __name__ == '__main__':
+    p = Popup()
+    _thread.start_new_thread(main_thread, (p,))
+    p.start()
 

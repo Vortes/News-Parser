@@ -84,7 +84,6 @@ class ProblemSet5(unittest.TestCase):
             self.assertTrue(trig.evaluate(pink), "TitleTrigger failed to fire when the word had an apostrophe on it")
             self.assertTrue(trig.evaluate(football), "TitleTrigger failed to fire in the presence of lots of punctuation")
             self.assertTrue(trig.evaluate(caps), "TitleTrigger is case-sensitive and shouldn't be")
-            
             self.assertFalse(trig.evaluate(microsoft), "TitleTrigger fired when the word was present, but not as its own word (e.g. 'soft' and 'Microsoft)'")
             self.assertFalse(trig.evaluate(nothing), "TitleTrigger fired when the word wasn't really present in the title")
         add_points(5)
