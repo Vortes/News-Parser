@@ -82,6 +82,7 @@ class Trigger(object):
         for the given news item, or False otherwise.
         """
         raise NotImplementedError
+    
 
 # Whole Word Triggers
 # Problems 2-5
@@ -98,29 +99,70 @@ class WordTrigger(Trigger):
         return False
 
 
-# TODO: TitleTrigger
-# TODO: SubjectTrigger
-# TODO: SummaryTrigger
+# ! PROBLEM 3 WIP (Concept works, not sure how to get test to run)
+class TitleTrigger(WordTrigger):
+    def evaluate(self, story):
+        return self.is_word_in(story.get_title())
+    
+
+# ! PROBLEM 4 WIP (Concept works)
+class PublishedTrigger(WordTrigger):
+    def evaluate(self, story):
+        return self.is_word_in(story.get_published())
 
 
-# Composite Triggers
-# Problems 6-8
-
-# TODO: NotTrigger
-# TODO: AndTrigger
-# TODO: OrTrigger
+# ! PROBLEM 5 WIP (Concept works)
+class SummaryTrigger(WordTrigger): 
+    def evaluate(self, story):
+        return self.is_word_in(story.get_summary())
 
 
-# Phrase Trigger
-# Question 9
+class NotTrigger(Trigger):
+    def __init__(self, trigger):
+        self.test = trigger
 
-# TODO: PhraseTrigger
+
+    def evaluate(self, story):
+        return not self.test.evaluate(story)
 
 
-#======================
+class AndTrigger(Trigger):
+    def __init__(self, trigger1, trigger2):
+        self.trigger1 = trigger1
+        self.trigger2 = trigger2
+
+    def evaluate(self, story):
+        if self.trigger1.evaluate(story) and self.trigger2.evaluate(story):
+            return True
+        else:
+            return False
+
+
+class OrTrigger(Trigger):
+    def __init__(self, trigger1, trigger2):
+        self.trigger1 = trigger1
+        self.trigger2 = trigger2
+
+    def evaluate(self, story):
+        if self.trigger1.evaluate(story) or self.trigger2.evaluate(story):
+            return True
+        else:
+            return False
+
+
+class PhraseTrigger(Trigger):
+    def __init__(self, phrase):
+        self.phrase = phrase
+
+    def evaluate(self, story):
+        if self.phrase in story.get_guid() or self.phrase in story.get_title() or self.phrase in story.get_summary():
+            return True
+        else:
+            return False
+# ======================
 # Part 3
 # Filtering
-#======================
+# ======================
 
 # def filter_stories(stories, triggerlist):
 #     """
